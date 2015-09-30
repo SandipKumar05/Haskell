@@ -7,6 +7,22 @@ data Piece = Piece{color::Color,player::Player}
 data Color = White | Black 
 data Player = King | Queen | Rook | Knight | Bishop | Pawn 
 
+instance Show Color where
+	show White = "White"
+	show Black = "Black" 
+
+instance Eq Color where
+	White == White = True
+	Black == Black = True
+	_ == _ = False
+
+instance Show Player where
+	show King = "King"
+	show Queen = "Queen"
+	show Rook = "Rook"
+	show Knight = "Knight"
+	show Bishop = "Bishop"
+	show Pawn = "Pawn" 
 
 instance Show Piece where
 	show Piece{color=White,player=King}= "WK"
@@ -58,35 +74,87 @@ change x1 y1 x2 y2 a = do
 		let b = ([f 0] ++ [f 1] ++ [f 2] ++ [f 3] ++ [f 4] ++ [f 5] ++ [f 6] ++ [f 7])
 		b
 
-move::[String] -> Board -> IO()
-move x b = do
-		let board = change (read (x!!0)::Int) (read (x!!1)::Int) (read (x!!2)::Int) (read (x!!3)::Int) b 
-	  	let board' = (map.map) convert board
-	 	let print' n | n == 7    = print ((board'!!n))
-	 			  	 | otherwise = do 
-	 			  		print ((board'!!n))
-	 			  		print' (n+1) 
-	 	print' 0
-	 	c <- getLine
-	 	let x = (words $ c)
-	 	move x board
+move::[String] -> Board -> Bool -> IO()
+move x b chance = do
+		let a1 = (read (x!!0)::Int)
+	 	let a2 = (read (x!!1)::Int)
+	 	let a3 = (read (x!!2)::Int)
+	 	let a4 = (read (x!!3)::Int)
+	 	let a5 = a1 >= 0 && a1 <= 7 && a2 >= 0 && a2 <= 7 && a3 >= 0 && a3 <= 7 && a4 >= 0 && a4 <= 7
+	 	if a5
+	 		then do
+			 	let col = color $ (\(Just x) -> x) ((b!!a1)!!a2)
+			 	if( ((chance == True && col == White) || (chance == False && col == Black)) && a5 )
+			 		then do
+			 			let board = change a1 a2 a3 a4 b
+			 			let board' = (map.map) convert board
+			 			let print' n | n == 7    = print ((board'!!n))
+			 					 	 | otherwise = do 
+			 			  						print ((board'!!n))
+			 			  						print' (n+1)
+			 			print' 0
+			 			c <- getLine
+			 			let x = (words $ c)
+			 			move x board (not chance)
+			 		else do 
+			 			putStrLn "Invalid Move - Play again"
+			 			c <- getLine
+			 			let x = (words $ c)
+			 			move x b (chance)
+	 	else do
+	 		putStrLn "Invalid Input - Play again"
+			c <- getLine
+			let x = (words $ c)
+			move x b (chance)
 
 convert::Maybe Piece -> String 
 convert (Just x) = show x 
 convert Nothing = "  "
 
 main = do
-	 c <- getLine
-	 let x = (words $ c)
-	 let board = change (read (x!!0)::Int) (read (x!!1)::Int) (read (x!!2)::Int) (read (x!!3)::Int) initialBoard
-
-	 let board' = (map.map) convert board
+	 let board' = (map.map) convert initialBoard
 	 let print' n | n == 7    = print ((board'!!n))
-	 			  | otherwise = do 
-	 			  	print ((board'!!n))
-	 			  	print' (n+1) 
+	 					 | otherwise = do 
+	 			  						print ((board'!!n))
+	 			  						print' (n+1)
 	 print' 0
 	 c <- getLine
 	 let x = (words $ c)
-	 move x board
+	 -- True -> White to play, False -> Black to play
+	 let chance = True
+	 let a1 = (read (x!!0)::Int)
+	 let a2 = (read (x!!1)::Int)
+	 let a3 = (read (x!!2)::Int)
+	 let a4 = (read (x!!3)::Int)
+	 let a5 = a1 >= 0 && a1 <= 7 && a2 >= 0 && a2 <= 7 && a3 >= 0 && a3 <= 7 && a4 >= 0 && a4 <= 7
+	 if a5
+	 	then do
+	 		let col = color $ (\(Just x) -> x) ((initialBoard!!a1)!!a2)
+	 
+	 		if( chance == True && col == White && a5 )
+	 			then do 
+	 				let board = change a1 a2 a3 a4 initialBoard
+			 		let board' = (map.map) convert board
+			 		let print' n | n == 7    = print ((board'!!n))
+			 					 | otherwise = do 
+			 			  						print ((board'!!n))
+			 			  						print' (n+1)
+			 		print' 0
+			 		c <- getLine
+			 		let x = (words $ c)
+			 		move x board (not chance)
+			 	else do
+			 		putStrLn "Invalid Move - White to play - Play again"
+			 		c <- getLine
+			 		let x = (words $ c)
+			 		move x initialBoard (chance)
+		else do
+			putStrLn "Invalid Input - Play again"
+			c <- getLine
+			let x = (words $ c)
+			move x initialBoard (chance) 
+	 
+	 --c <- getLine
+	 --let x = (words $ c)
+	 --move x board 
 	 
