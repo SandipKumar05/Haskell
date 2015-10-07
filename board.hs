@@ -1,6 +1,8 @@
 import Data.Foldable 
 import Data.Sequence
+import qualified System.Console.ANSI as S
 import Rook
+import Bishop
 
 type Board = [[Maybe Piece]]
 data Piece = Piece{color::Color,player::Player}
@@ -104,16 +106,17 @@ move x b chance = do
 	 						 	 | otherwise   = color $ (\(Just x) -> x) ((b!!a3)!!a4)
 	 					let play1 = player $ (\(Just x) -> x) ((b!!a1)!!a2)
 	 					let valid_move | play1 == Rook = Rook.validPath a1 a2 a3 a4 b
+	 								   | play1 == Bishop = Bishop.validPath a1 a2 a3 a4 b
 	 								   | otherwise = True
 					 	if ((chance == True && col1 == White) || (chance == False && col1 == Black)) && col1 /= col2 && valid_move
 					 		then do
 					 			let board = changeBoard a1 a2 a3 a4 b
 					 			let board' = (map.map) convert board
-					 			let print' n | n == 7    = print ((board'!!n))
-					 					 	 | otherwise = do 
-					 			  						print ((board'!!n))
-					 			  						print' (n+1)
-					 			print' 0
+					 			let print' n  t | n == 7     =  prints ((board'!!n)) t
+		         							        | otherwise = do 
+											prints ((board'!!n)) t
+											print' (n+1) (not t)
+					 			print' 0 True
 					 			c <- getLine
 					 			let x = (words $ c)
 					 			move x board (not chance)
@@ -137,13 +140,59 @@ convert::Maybe Piece -> String
 convert (Just x) = show x 
 convert Nothing = "  "
 
+prints a t = do
+	if t == True
+		then do 
+			S.setSGR [S.SetColor S.Foreground S.Vivid S.Cyan]
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!0)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!1)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!2)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!3)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!4)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!5)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!6)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!7)++" ")
+			S.setSGR [S.Reset]
+			putStr "\n"
+			
+		else do
+			S.setSGR [S.SetColor S.Foreground S.Vivid S.Cyan]
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!0)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!1)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!2)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!3)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!4)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!5)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
+			putStr (" "++(a!!6)++" ")
+			S.setSGR [S.SetColor S.Background S.Vivid S.White]
+			putStr (" "++(a!!7)++" ")
+			S.setSGR [S.Reset]
+			putStr "\n"
+			
+
+
 main = do
 	 let board' = (map.map) convert initialBoard
-	 let print' n | n == 7    = print ((board'!!n))
-	 			  | otherwise = do 
-	 			  						print ((board'!!n))
-	 			  						print' (n+1)
-	 print' 0
+	 let print' n  t | n == 7     =  prints ((board'!!n)) t
+		         | otherwise = do 
+					prints ((board'!!n)) t
+					print' (n+1) (not t)
+	 print' 0 True
 	 c <- getLine
 	 let x = (words $ c)
 	 -- True -> White to play, False -> Black to play
@@ -165,16 +214,17 @@ main = do
 	 						 | otherwise   = color $ (\(Just x) -> x) ((initialBoard!!a3)!!a4)
 	 				let play1 = player $ (\(Just x) -> x) ((initialBoard!!a1)!!a2)
 	 				let valid_move | play1 == Rook = Rook.validPath a1 a2 a3 a4 initialBoard
+	 							   | play1 == Bishop = Bishop.validPath a1 a2 a3 a4 initialBoard
 	 							   | otherwise = True
 			 		if( chance == True && col1 == White && col2 == Black && valid_move)
 			 			then do 
 			 				let board = changeBoard a1 a2 a3 a4 initialBoard
 					 		let board' = (map.map) convert board
-					 		let print' n | n == 7    = print ((board'!!n))
-					 					 | otherwise = do 
-					 			  						print ((board'!!n))
-					 			  						print' (n+1)
-					 		print' 0
+					 		let print' n  t | n == 7     =  prints ((board'!!n)) t
+					 			        | otherwise = do 
+					 			  		prints ((board'!!n)) t
+					 			  		print' (n+1) (not t)
+					 		print' 0 True
 					 		c <- getLine
 					 		let x = (words $ c)
 					 		move x board (not chance)
