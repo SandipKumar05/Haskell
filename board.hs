@@ -37,18 +37,18 @@ instance Eq Player where
 	_ == _ = False
 
 instance Show Piece where
-	show Piece{color=White,player=King}= "WK"
-	show Piece{color=White,player=Queen} = "WQ"
-	show Piece{color=White,player=Bishop} = "WB"
-	show Piece{color=White,player=Rook} = "WR"
-	show Piece{color=White,player=Knight} = "WN"
-	show Piece{color=White,player=Pawn} = "WP"
-	show Piece{color=Black,player=King} = "BK"
-	show Piece{color=Black,player=Queen} = "BQ"
-	show Piece{color=Black,player=Bishop} = "BB"
-	show Piece{color=Black,player=Rook} = "BR"
-	show Piece{color=Black,player=Knight} = "BN"
-	show Piece{color=Black,player=Pawn} = "BP"
+	show Piece{color=White,player=King}= "\9812"
+	show Piece{color=White,player=Queen} = "\9813"
+	show Piece{color=White,player=Bishop} = "\9815"
+	show Piece{color=White,player=Rook} = "\9814"
+	show Piece{color=White,player=Knight} = "\9816"
+	show Piece{color=White,player=Pawn} = "\9817"
+	show Piece{color=Black,player=King} = "\9818"
+	show Piece{color=Black,player=Queen} = "\9819"
+	show Piece{color=Black,player=Bishop} = "\9821"
+	show Piece{color=Black,player=Rook} = "\9820"
+	show Piece{color=Black,player=Knight} = "\9822"
+	show Piece{color=Black,player=Pawn} = "\9823"
 	show _ = ""
 
 wk = Piece{color=White,player=King}
@@ -67,13 +67,13 @@ bp = Piece{color=Black,player=Pawn}
 
 initialBoard :: Board
 initialBoard = [[Just wr,Just wn,Just wb,Just wq,Just wk,Just wb,Just wn, Just wr],
-				[Just wp,Just wp,Just wp,Just wp,Just wp,Just wp,Just wp, Just wp],
-				[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
-				[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
-				[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
-				[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
-				[Just bp,Just bp,Just bp,Just bp,Just bp,Just bp,Just bp, Just bp],
-				[Just br,Just bn,Just bb,Just bq,Just bk,Just bb,Just bn, Just br]]
+		[Just wp,Just wp,Just wp,Just wp,Just wp,Just wp,Just wp, Just wp],
+		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
+		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
+		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
+		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
+		[Just bp,Just bp,Just bp,Just bp,Just bp,Just bp,Just bp, Just bp],
+		[Just br,Just bn,Just bb,Just bq,Just bk,Just bb,Just bn, Just br]]
 
 
 changeBoard::Int -> Int -> Int -> Int -> Board -> Board
@@ -97,11 +97,11 @@ move x b chance = do
 	 
 	 	if inRange && (a1,a2) /= (a3,a4) 
 	 		then do
-	 			let initial_empty = (convert ((b!!a1)!!a2)) == "  "
+	 			let initial_empty = (convert ((b!!a1)!!a2)) == " "
 	 			if (not initial_empty) 
 	 				then do
 	 					let col1 = color $ (\(Just x) -> x) ((b!!a1)!!a2)
-	 					let final_empty = (convert ((b!!a3)!!a4)) == "  "
+	 					let final_empty = (convert ((b!!a3)!!a4)) == " "
 	 					let col2 | final_empty = if col1 == White then Black else White
 	 						 	 | otherwise   = color $ (\(Just x) -> x) ((b!!a3)!!a4)
 	 					let play1 = player $ (\(Just x) -> x) ((b!!a1)!!a2)
@@ -138,12 +138,13 @@ move x b chance = do
 
 convert::Maybe Piece -> String 
 convert (Just x) = show x 
-convert Nothing = "  "
+convert Nothing = " "
 
+prints::[String] -> Bool -> IO()
 prints a t = do
 	if t == True
 		then do 
-			S.setSGR [S.SetColor S.Foreground S.Vivid S.Cyan]
+			S.setSGR [S.SetColor S.Foreground S.Dull S.Black]
 			S.setSGR [S.SetColor S.Background S.Vivid S.White]
 			putStr (" "++(a!!0)++" ")
 			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
@@ -161,10 +162,9 @@ prints a t = do
 			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
 			putStr (" "++(a!!7)++" ")
 			S.setSGR [S.Reset]
-			putStr "\n"
-			
+			putStr "\n"	
 		else do
-			S.setSGR [S.SetColor S.Foreground S.Vivid S.Cyan]
+			S.setSGR [S.SetColor S.Foreground S.Dull S.Black]
 			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
 			putStr (" "++(a!!0)++" ")
 			S.setSGR [S.SetColor S.Background S.Vivid S.White]
@@ -185,7 +185,7 @@ prints a t = do
 			putStr "\n"
 			
 
-
+main::IO()
 main = do
 	 let board' = (map.map) convert initialBoard
 	 let print' n  t | n == 7     =  prints ((board'!!n)) t
@@ -205,11 +205,11 @@ main = do
 	 
 	 if inRange && (a1,a2) /= (a3,a4) 
 	 	then do
-	 		let initial_empty = (convert ((initialBoard!!a1)!!a2)) == "  "
+	 		let initial_empty = (convert ((initialBoard!!a1)!!a2)) == " "
 	 		if (not initial_empty) 
 	 			then do
 	 				let col1 = color $ (\(Just x) -> x) ((initialBoard!!a1)!!a2)
-	 				let final_empty = (convert ((initialBoard!!a3)!!a4)) == "  "
+	 				let final_empty = (convert ((initialBoard!!a3)!!a4)) == " "
 	 				let col2 | final_empty = Black
 	 						 | otherwise   = color $ (\(Just x) -> x) ((initialBoard!!a3)!!a4)
 	 				let play1 = player $ (\(Just x) -> x) ((initialBoard!!a1)!!a2)
