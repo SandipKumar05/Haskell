@@ -117,6 +117,7 @@ move x b chance = do
 											prints ((board'!!n)) t
 											print' (n+1) (not t)
 					 			print' 0 True
+					 			if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
 					 			c <- getLine
 					 			let x = (words $ c)
 					 			move x board (not chance)
@@ -193,6 +194,7 @@ main = do
 					prints ((board'!!n)) t
 					print' (n+1) (not t)
 	 print' 0 True
+	 putStrLn "White to play"
 	 c <- getLine
 	 let x = (words $ c)
 	 -- True -> White to play, False -> Black to play
@@ -225,6 +227,7 @@ main = do
 					 			  		prints ((board'!!n)) t
 					 			  		print' (n+1) (not t)
 					 		print' 0 True
+					 		if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
 					 		c <- getLine
 					 		let x = (words $ c)
 					 		move x board (not chance)
