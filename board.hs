@@ -6,6 +6,7 @@ import Bishop
 import Knight
 import King
 import Queen
+import Pawn
 
 type Board = [[Maybe Piece]]
 data Piece = Piece{color::Color,player::Player}
@@ -113,6 +114,7 @@ move x b chance = do
 									   | play1 == Knight = Knight.validPath a1 a2 a3 a4 b
 									   | play1 == King = King.validPath a1 a2 a3 a4 b
 									   | play1 == Queen = Queen.validPath a1 a2 a3 a4 b
+									   | play1 == Pawn = Pawn.validPath a1 a2 a3 a4 initialBoard (if col1 == White then 1 else (-1))
 	 								   | otherwise = True
 					 	if ((chance == True && col1 == White) || (chance == False && col1 == Black)) && col1 /= col2 && valid_move
 					 		then do
@@ -226,6 +228,7 @@ main = do
 								   | play1 == Knight = Knight.validPath a1 a2 a3 a4 initialBoard
 								   | play1 == King = King.validPath a1 a2 a3 a4 initialBoard
 								   | play1 == Queen = Queen.validPath a1 a2 a3 a4 initialBoard
+								   | play1 == Pawn = Pawn.validPath a1 a2 a3 a4 initialBoard (if col1 == White then 1 else (-1))
 	 							   | otherwise = True
 			 		if( chance == True && col1 == White && col2 == Black && valid_move)
 			 			then do
