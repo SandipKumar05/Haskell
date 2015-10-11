@@ -1,6 +1,6 @@
 import Data.Foldable
 import Data.Sequence
-import qualified System.Console.ANSI as S
+import Display
 import Rook
 import Bishop
 import Knight
@@ -120,9 +120,9 @@ move x b chance = do
 					 		then do
 					 			let board = changeBoard a1 a2 a3 a4 b
 					 			let board' = (map.map) convert board
-					 			let print' n  t | n == 7     =  prints ((board'!!n)) t
+					 			let print' n  t | n == 7     =  Display.prints ((board'!!n)) t
 		         							        | otherwise = do
-											prints ((board'!!n)) t
+											Display.prints ((board'!!n)) t
 											print' (n+1) (not t)
 					 			print' 0 True
 					 			if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
@@ -148,50 +148,6 @@ move x b chance = do
 convert::Maybe Piece -> String
 convert (Just x) = show x
 convert Nothing = " "
-
-prints::[String] -> Bool -> IO()
-prints a t = do
-	if t == True
-		then do
-			S.setSGR [S.SetColor S.Foreground S.Dull S.Black]
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!0)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!1)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!2)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!3)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!4)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!5)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!6)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!7)++" ")
-			S.setSGR [S.Reset]
-			putStr "\n"
-		else do
-			S.setSGR [S.SetColor S.Foreground S.Dull S.Black]
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!0)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!1)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!2)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!3)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!4)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!5)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.Black]
-			putStr (" "++(a!!6)++" ")
-			S.setSGR [S.SetColor S.Background S.Vivid S.White]
-			putStr (" "++(a!!7)++" ")
-			S.setSGR [S.Reset]
-			putStr "\n"
 
 
 main::IO()
@@ -234,9 +190,9 @@ main = do
 			 			then do
 			 				let board = changeBoard a1 a2 a3 a4 initialBoard
 					 		let board' = (map.map) convert board
-					 		let print' n  t | n == 7     =  prints ((board'!!n)) t
+					 		let print' n  t | n == 7     =  Display.prints ((board'!!n)) t
 					 			        | otherwise = do
-					 			  		prints ((board'!!n)) t
+					 			  		Display.prints ((board'!!n)) t
 					 			  		print' (n+1) (not t)
 					 		print' 0 True
 					 		if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
