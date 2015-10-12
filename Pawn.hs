@@ -26,3 +26,5 @@ correctMove x1 y1 x2 y2 b = do
 					if (convert ((b!!x2)!!y2)) == " " then True else False 
 				else do
 					if (convert ((b!!x2)!!y2)) /= " " then True else False
+
+

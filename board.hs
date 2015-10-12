@@ -1,5 +1,7 @@
 import Data.Foldable
 import Data.Sequence
+import Data.Char (isSpace)
+import Control.Monad
 import Display
 import Rook
 import Bishop
@@ -91,6 +93,30 @@ changeBoard x1 y1 x2 y2 a = do
 		let b = ([f 0] ++ [f 1] ++ [f 2] ++ [f 3] ++ [f 4] ++ [f 5] ++ [f 6] ++ [f 7])
 		b
 
+pawnPromotion:: Int -> Int -> Board -> Color -> String -> Board
+pawnPromotion x2 y2 a col line = do
+		let trim = f . f
+   			where f = Prelude.reverse . dropWhile isSpace
+   		let promoted_piece x = case x of 
+   						"Rook" -> (if col == White then (Just wr) else (Just br))
+   						"Bishop" -> (if col == White then (Just wb) else (Just bb))
+   						"Knight" -> (if col == White then (Just wn) else (Just bn))
+   						"Queen" -> (if col == White then (Just wq) else (Just bq))
+   			      			--otherwise -> do putStrLn "Wrong choice - choose again"
+   			      			--     		       pawnPromotion x2 y2 a col
+
+		let b1 = toList $ update y2 (promoted_piece $ trim line) $ fromList (a!!x2)
+		let f = \x -> case () of () | x == x2 -> b1 |otherwise -> a!!x
+		let b = ([f 0] ++ [f 1] ++ [f 2] ++ [f 3] ++ [f 4] ++ [f 5] ++ [f 6] ++ [f 7])
+		b
+
+nextMove:: Board -> Bool -> IO()
+nextMove b chance = do
+		c <- getLine
+		let x = (words $ c)
+		move x b (chance)
+
+
 move::[String] -> Board -> Bool -> IO()
 move x b chance = do
 		let a1 = (read (x!!0)::Int)
@@ -110,12 +136,12 @@ move x b chance = do
 	 						 	 | otherwise   = color $ (\(Just x) -> x) ((b!!a3)!!a4)
 	 					let play1 = player $ (\(Just x) -> x) ((b!!a1)!!a2)
 	 					let valid_move | play1 == Rook = Rook.validPath a1 a2 a3 a4 b
-	 								   | play1 == Bishop = Bishop.validPath a1 a2 a3 a4 b
-									   | play1 == Knight = Knight.validPath a1 a2 a3 a4 b
-									   | play1 == King = King.validPath a1 a2 a3 a4 b
-									   | play1 == Queen = Queen.validPath a1 a2 a3 a4 b
-									   | play1 == Pawn = Pawn.validPath a1 a2 a3 a4 initialBoard (if col1 == White then 1 else (-1))
-	 								   | otherwise = True
+	 							| play1 == Bishop = Bishop.validPath a1 a2 a3 a4 b
+								| play1 == Knight = Knight.validPath a1 a2 a3 a4 b
+								| play1 == King = King.validPath a1 a2 a3 a4 b
+								| play1 == Queen = Queen.validPath a1 a2 a3 a4 b
+								| play1 == Pawn = Pawn.validPath a1 a2 a3 a4 b (if col1 == White then 1 else (-1))
+	 							| otherwise = True
 					 	if ((chance == True && col1 == White) || (chance == False && col1 == Black)) && col1 /= col2 && valid_move
 					 		then do
 					 			let board = changeBoard a1 a2 a3 a4 b
@@ -125,25 +151,34 @@ move x b chance = do
 											Display.prints ((board'!!n)) t
 											print' (n+1) (not t)
 					 			print' 0 True
-					 			if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
-					 			c <- getLine
-					 			let x = (words $ c)
-					 			move x board (not chance)
-					 		else do
-					 			putStrLn "Invalid Input - Play again"
-					 			c <- getLine
-					 			let x = (words $ c)
-					 			move x b (chance)
-	 				else do
-	 					putStrLn "Invalid Input - Play again"
-						c <- getLine
-						let x = (words $ c)
-						move x b (chance)
-	 		else do
-		 		putStrLn "Invalid Input - Play again"
-				c <- getLine
-				let x = (words $ c)
-				move x b (chance)
+					 			
+					 			if (play1 == Pawn && col1 == White && a3 == 7) || (play1 == Pawn && col1 == Black && a3 == 0)
+					 				then do
+					 					putStrLn "What do you want - Rook, Bishop, Knight, Queen?"
+					 					choice <- getLine
+					 					let board'' = pawnPromotion a3 a4 board col1 choice
+					 					let board' = (map.map) convert board''
+					 					let print' n  t | n == 7     =  Display.prints ((board'!!n)) t
+		         							        		         | otherwise = do
+														Display.prints ((board'!!n)) t
+														print' (n+1) (not t)
+					 					print' 0 True
+					 					if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
+					 					nextMove board'' (not chance)
+					 				else do
+							 			if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
+							 			nextMove board (not chance)
+					 		else do 
+					 			putStrLn "Invalid Input - Play again" 
+					 			nextMove b (chance)
+	 				else do 
+	 					putStrLn "Don't move empty spaces - Play again"
+	 					nextMove b (chance)
+	 		else do 
+	 			putStrLn "Not possible - Play again"
+	 			nextMove b (chance)
+
+
 
 convert::Maybe Piece -> String
 convert (Just x) = show x
@@ -196,24 +231,16 @@ main = do
 					 			  		print' (n+1) (not t)
 					 		print' 0 True
 					 		if (not chance) == True then putStrLn "White to play" else  putStrLn "Black to play"
-					 		c <- getLine
-					 		let x = (words $ c)
-					 		move x board (not chance)
-					 	else do
+					 		nextMove board (not chance)
+					 	else do 
 					 		putStrLn "Invalid Input - Play again"
-					 		c <- getLine
-					 		let x = (words $ c)
-					 		move x initialBoard (chance)
-	 			else do
-	 				putStrLn "Invalid Input - Play again"
-					c <- getLine
-					let x = (words $ c)
-					move x initialBoard (chance)
-		else do
-			putStrLn "Invalid Input - Play again"
-			c <- getLine
-			let x = (words $ c)
-			move x initialBoard (chance)
+					 		nextMove initialBoard (chance)
+	 			else do 
+	 				putStrLn "Don't move empty spaces - Play again"
+	 				nextMove initialBoard (chance)
+		else do 
+			putStrLn "Not possible - Play again"
+			nextMove initialBoard (chance)
 
 	 --c <- getLine
 	 --let x = (words $ c)

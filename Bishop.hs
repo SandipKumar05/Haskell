@@ -1,4 +1,4 @@
-module Bishop (validPath,noObstacle) where
+module Bishop (validPath) where
 
 convert (Just x) = show x
 convert Nothing = " "
