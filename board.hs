@@ -72,14 +72,14 @@ bp = Piece{color=Black,player=Pawn}
 
 
 initialBoard :: Board
-initialBoard = [[Just wr,Just wn,Just wb,Just wq,Just wk,Just wb,Just wn, Just wr],
+initialBoard = [[Just wr,Just wn,Just wb,Just wk,Just wq,Just wb,Just wn, Just wr],
 		[Just wp,Just wp,Just wp,Just wp,Just wp,Just wp,Just wp, Just wp],
 		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
 		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
 		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
 		[Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing,Nothing],
 		[Just bp,Just bp,Just bp,Just bp,Just bp,Just bp,Just bp, Just bp],
-		[Just br,Just bn,Just bb,Just bq,Just bk,Just bb,Just bn, Just br]]
+		[Just br,Just bn,Just bb,Just bk,Just bq,Just bb,Just bn, Just br]]
 
 
 changeBoard::Int -> Int -> Int -> Int -> Board -> Board
@@ -123,7 +123,7 @@ move x b chance = do
 	 	let a2 = (read (x!!1)::Int)
 	 	let a3 = (read (x!!2)::Int)
 	 	let a4 = (read (x!!3)::Int)
-	 	let inRange = a1 >= 0 && a1 <= 7 && a2 >= 0 && a2 <= 7 && a3 >= 0 && a3 <= 7 && a4 >= 0 && a4 <= 7
+	 	let inRange = a1 `Prelude.elem` [0..7] && a2 `Prelude.elem` [0..7] && a3 `Prelude.elem` [0..7] && a4 `Prelude.elem` [0..7]
 
 	 	if inRange && (a1,a2) /= (a3,a4)
 	 		then do
@@ -202,7 +202,7 @@ main = do
 	 let a2 = (read (x!!1)::Int)
 	 let a3 = (read (x!!2)::Int)
 	 let a4 = (read (x!!3)::Int)
-	 let inRange = a1 >= 0 && a1 <= 7 && a2 >= 0 && a2 <= 7 && a3 >= 0 && a3 <= 7 && a4 >= 0 && a4 <= 7
+	 let inRange = a1 `Prelude.elem` [0..7] && a2 `Prelude.elem` [0..7] && a3 `Prelude.elem` [0..7] && a4 `Prelude.elem` [0..7]
 
 	 if inRange && (a1,a2) /= (a3,a4)
 	 	then do
