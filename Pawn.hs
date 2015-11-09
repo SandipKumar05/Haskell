@@ -6,7 +6,7 @@ convert Nothing = " "
 
 validPath x1 y1 x2 y2 b colmarker = do
 	-- colmarker determines the color of pawn : 1 if White, Black if -1
-			if colmarker == 1
+			if colmarker == -1
 				then do
 					if ((x2 - x1) == 1 && y1 == y2) || ((x2 - x1) == 2 && y1 == y2) || ((x2 - x1) == 1 && abs(y1 - y2) == 1)
 						then do
