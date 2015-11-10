@@ -3,12 +3,14 @@ import Data.Sequence
 import Data.Char (isSpace)
 import Control.Monad
 import Display
-import Rook
-import Bishop
-import Knight
-import King
-import Queen
-import Pawn
+import qualified CheckMate.Check as Check
+import qualified PieceRules.Rook as Rook
+import qualified PieceRules.Bishop as Bishop
+import qualified PieceRules.Knight as Knight
+import qualified PieceRules.King as King
+import qualified PieceRules.Queen as Queen
+import qualified PieceRules.Pawn as Pawn
+
 
 type Board = [[Maybe Piece]]
 data Piece = Piece{color::Color,player::Player}
@@ -85,6 +87,7 @@ initialBoard = [[Just br,Just bn,Just bb,Just bq,Just bk,Just bb,Just bn, Just b
 changeBoard::Int -> Int -> Int -> Int -> Board -> Board
 changeBoard x1 y1 x2 y2 a = do
 		let p = (a!!x1)!!y1
+
 		let b2 | x1 == x2  = toList $ update y1 Nothing $ fromList (toList $ update y2 p $ fromList (a!!x2))
 			   | otherwise = toList $ update y2 p $ fromList (a!!x2)
 		let b1 | x1 == x2  = toList $ update y1 Nothing $ fromList (toList $ update y2 p $ fromList (a!!x2))
@@ -97,7 +100,7 @@ pawnPromotion:: Int -> Int -> Board -> Color -> String -> Board
 pawnPromotion x2 y2 a col line = do
 		let trim = f . f
    			where f = Prelude.reverse . dropWhile isSpace
-   		let promoted_piece x = case x of 
+   		let promoted_piece x = case x of
    						"Rook" -> (if col == White then (Just wr) else (Just br))
    						"Bishop" -> (if col == White then (Just wb) else (Just bb))
    						"Knight" -> (if col == White then (Just wn) else (Just bn))
@@ -123,7 +126,7 @@ convert Nothing = " "
 
 position1::Char -> Int
 position1 x = do
-	let y | x == '8' = 0   
+	let y | x == '8' = 0
 		  | x == '7' = 1
 		  | x == '6' = 2
 		  | x == '5' = 3
@@ -131,6 +134,7 @@ position1 x = do
 		  | x == '3' = 5
 		  | x == '2' = 6
 		  | x == '1' = 7
+		  | otherwise = 8
 	y
 
 position2::Char -> Int
@@ -143,6 +147,7 @@ position2 x = do
 		  | x == 'f' = 5
 		  | x == 'g' = 6
 		  | x == 'h' = 7
+		  | otherwise = 8
 	y
 
 
@@ -180,7 +185,9 @@ move x b chance = do
 								| play1 == Pawn = Pawn.validPath a1 a2 a3 a4 b (if col1 == White then 1 else (-1))
 	 							| otherwise = True
 
-					 	if ((chance == True && col1 == White) || (chance == False && col1 == Black)) && col1 /= col2 && valid_move
+	 					let check = Check.checkKing (changeBoard a1 a2 a3 a4 b) (if col1 == White then 1 else (-1))
+
+					 	if ((chance == True && col1 == White) || (chance == False && col1 == Black)) && col1 /= col2 && valid_move && (not check)
 					 		then do
 					 			let board = changeBoard a1 a2 a3 a4 b
 					 			let board' = (map.map) convert board
@@ -191,14 +198,16 @@ move x b chance = do
 											Display.prints ((board'!!n)) t r
 											print' (n+1) (not t) (r-1)
 
-					 			print' 0 True 8
+								print' 0 True 8
 					 			putStrLn "   a  b  c  d  e  f  g  h"
 
-					 			if (not final_empty && (player $ (\(Just x)->x) ((b!!a3)!!a4)) == King) 
+
+					 			if (not final_empty && (player $ (\(Just x)->x) ((b!!a3)!!a4)) == King)
 					 				then do
 					 					putStrLn ((show col1) ++ " Wins !!!!")
 					 				else do
-							 			if (play1 == Pawn && col1 == White && a3 == 7) || (play1 == Pawn && col1 == Black && a3 == 0)
+					 					when (Check.checkKing board (if col1 == White then (-1) else 1) == True) $ putStrLn "Check !!!"
+							 			if (play1 == Pawn && col1 == White && a3 == 0) || (play1 == Pawn && col1 == Black && a3 == 7)
 							 				then do
 							 					putStrLn "What do you want - Rook, Bishop, Knight, Queen?"
 							 					choice <- getLine
@@ -214,21 +223,23 @@ move x b chance = do
 
 							 					print' 0 True 8
 							 					putStrLn "   a  b  c  d  e  f  g  h"
+							 					when (Check.checkKing board (if col1 == White then (-1) else 1) == True) $ putStrLn "Check !!!"
 
-							 					when ((not chance) == True) $ putStrLn "White to play" 
+
+							 					when ((not chance) == True) $ putStrLn "White to play"
 							 					when ((not chance) == False) $ putStrLn "Black to play"
 							 					nextMove board'' (not chance)
 							 				else do
-									 			when ((not chance) == True) $ putStrLn "White to play" 
+									 			when ((not chance) == True) $ putStrLn "White to play"
 							 					when ((not chance) == False) $ putStrLn "Black to play"
 									 			nextMove board (not chance)
-					 		else do 
-					 			putStrLn "Invalid Input - Play again" 
+					 		else do
+					 			putStrLn "Invalid Move - Play again"
 					 			nextMove b (chance)
-	 				else do 
+	 				else do
 	 					putStrLn "Don't move empty spaces - Play again"
 	 					nextMove b (chance)
-	 		else do 
+	 		else do
 	 			putStrLn "Not possible - Play again"
 	 			nextMove b (chance)
 
@@ -295,16 +306,15 @@ main = do
 					 		print' 0 True 8
 					 		putStrLn "   a  b  c  d  e  f  g  h"
 
-					 		when ((not chance) == True) $ putStrLn "White to play" 
+					 		when ((not chance) == True) $ putStrLn "White to play"
 							when ((not chance) == False) $ putStrLn "Black to play"
 					 		nextMove board (not chance)
-					 	else do 
-					 		putStrLn "Invalid Input - Play again"
+					 	else do
+					 		putStrLn "Invalid Move - Play again"
 					 		nextMove initialBoard (chance)
-	 			else do 
+	 			else do
 	 				putStrLn "Don't move empty spaces - Play again"
 	 				nextMove initialBoard (chance)
-		else do 
+		else do
 			putStrLn "Not possible - Play again"
 			nextMove initialBoard (chance)
-
