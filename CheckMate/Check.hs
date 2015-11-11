@@ -1,4 +1,5 @@
 module CheckMate.Check (searchKing,checkKing) where
+
 import Data.List
 
 
@@ -189,10 +190,10 @@ kingAttack b king_pos piece = do
 	(c1 || c2 || c3 || c4 || c5 || c6 || c7 || c8)
 
 
-searchKing b colmarker = do
+searchKing b king_color = do
 	let b' = (map.map) convert b
-	-- colmarker determines the color of pawn : 1 if White, Black if -1
-	if colmarker == 1
+	-- king_color determines the color of pawn : 1 if White, Black if -1
+	if king_color == 1
 		then do
 			let king_pos i | "\9812" `elem` (b'!!i) = do
 												let x = (\(Just x)->x) $ elemIndex "\9812" (b'!!i)
@@ -208,13 +209,15 @@ searchKing b colmarker = do
 			king_pos 0
 
 
-checkKing b colmarker = do
-	let king_pos = searchKing b colmarker
-	let c1 = pawnAttack b king_pos (if colmarker == 1 then "\9823" else "\9817")
-	let c2 = rookAttack b king_pos (if colmarker == 1 then "\9820" else "\9814")
-	let c3 = bishopAttack b king_pos (if colmarker == 1 then "\9821" else "\9815")
-	let c4 = queenAttack b king_pos (if colmarker == 1 then "\9819" else "\9813")
-	let c5 = knightAttack b king_pos (if colmarker == 1 then "\9822" else "\9816")
-	let c6 = kingAttack b king_pos (if colmarker == 1 then "\9818" else "\9812")
+checkKing b king_color = do
+	let king_pos = searchKing b king_color
+
+	-- king_color determines the color of pawn : 1 if White, Black if -1
+	let c1 = pawnAttack b king_pos (if king_color == 1 then "\9823" else "\9817")
+	let c2 = rookAttack b king_pos (if king_color == 1 then "\9820" else "\9814")
+	let c3 = bishopAttack b king_pos (if king_color == 1 then "\9821" else "\9815")
+	let c4 = queenAttack b king_pos (if king_color == 1 then "\9819" else "\9813")
+	let c5 = knightAttack b king_pos (if king_color == 1 then "\9822" else "\9816")
+	let c6 = kingAttack b king_pos (if king_color == 1 then "\9818" else "\9812")
 
 	(c1 || c2 || c3 || c4 || c5 || c6)
